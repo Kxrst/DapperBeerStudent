@@ -71,7 +71,16 @@ public class Assignments1 : TestHelper
     // @Country is een query parameter placeholder.
     public static List<Beer> GetAllBeersSortedByNameForCountry(string country)
     {
-        throw new NotImplementedException();
+        string sql = 
+            @"SELECT beer.BeerId, beer.Name, beer.BrewerId, brewer.Name AS BrewerName, brewer.Country 
+          FROM Beer
+          JOIN Brewer ON Brewer.BrewerId = Beer.BrewerId
+          WHERE brewer.Country = @Country
+          ORDER BY beer.Name ASC";
+
+        using var connection = DbHelper.GetConnection();
+        var aleBeers = connection.Query<Beer>(sql, new { Country = country }).ToList();
+        return aleBeers;
     }
     
     // 1.4 Question
@@ -81,7 +90,14 @@ public class Assignments1 : TestHelper
     // Voor deze vraag kijken specifiek naar deze pagina: https://www.learndapper.com/dapper-query
     public static int CountBrewers()
     {
-        throw new NotImplementedException();
+        string sql =
+            @"SELECT COUNT(BrewerId) 
+              FROM brewer";
+
+        using var connection = DbHelper.GetConnection();
+        var brewerCounts = connection.ExecuteScalar<int>(sql);
+        Console.WriteLine($"Total aantal brewer count: {brewerCounts}");
+        return brewerCounts;
     }
     
     // 1.5 Question
@@ -94,7 +110,13 @@ public class Assignments1 : TestHelper
     // voor Queries die net overeenkomen met de database tabellen.
     public static List<NumberOfBrewersByCountry> NumberOfBrewersByCountry()
     {
-        throw new NotImplementedException();
+        string sql =
+            @"SELECT Country, COUNT(1) AS NumberOfBreweries
+              from brewer
+              GROUP BY country";
+        
+        using var connection = DbHelper.GetConnection();
+        return connection.Query<NumberOfBrewersByCountry>(sql).ToList();
     }
     
     // 1.6 Question
@@ -102,7 +124,15 @@ public class Assignments1 : TestHelper
     // Je kan in MySQL de LIMIT 1 gebruiken om 1 record terug te krijgen.
     public static Beer GetBeerWithMostAlcohol()
     {
-        throw new NotImplementedException();
+        string sql =
+            @"SELECT beerid, name, alcohol
+              from beer
+              Order By Alcohol DESC 
+              limit 1";
+        
+        using var connection = DbHelper.GetConnection();
+        var highestAlcBeer = connection.QuerySingleOrDefault<Beer>(sql);
+        return highestAlcBeer;
     }
     
     // 1.7 Question
@@ -112,14 +142,27 @@ public class Assignments1 : TestHelper
     // indien de brouwerij niet bestaat voor een bepaalde brewerId.
     public static Brewer? GetBreweryByBrewerId(int brewerId)
     {
-        throw new NotImplementedException();
+        string sql =
+            @"SELECT brewerId, name
+              FROM brewer
+              WHERE brewerId = @BrewerId";
+        
+        using var connection = DbHelper.GetConnection();
+        return connection.QuerySingleOrDefault<Brewer>(sql, new { BrewerId = brewerId });
     }
     
     // 1.8 Question
     // Gegeven de BrewerId, geef een overzicht van alle bieren van de brouwerij gesorteerd bij alcohol percentage.
     public static List<Beer> GetAllBeersByBreweryId(int brewerId)
     {
-        throw new NotImplementedException();
+        string sql =
+            @"SELECT name, alcohol
+              FROM beer
+              WHERE brewerId = @BrewerId
+              order by alcohol";
+        
+        using var connection = DbHelper.GetConnection();
+        return connection.Query<Beer>(sql, new { BrewerId = brewerId }).ToList();
     }
     
     // 1.9 Question
@@ -127,7 +170,15 @@ public class Assignments1 : TestHelper
     // Gebruik hiervoor de class CafeBeer (directory DTO). 
     public static List<CafeBeer> GetCafeBeers()
     {
-        throw new NotImplementedException();
+        string sql =
+            @"SELECT cafe.Name, beer.Name 
+            FROM sells
+            JOIN beer ON beer.BeerId = sells.beerId
+            JOIN cafe ON cafe.CafeId = sells.cafeId
+            order by cafe.Name";
+            
+        using var connection = DbHelper.GetConnection();
+        return connection.Query<CafeBeer>(sql).ToList();
     }
     
     // De vorige 1.10 Question heb ik verwijderd, deze was nogal lastig
@@ -136,7 +187,13 @@ public class Assignments1 : TestHelper
     // Geef de gemiddelde waardering (score in de tabel Review) van een biertje terug gegeven de BeerId.
     public static decimal GetBeerRating(int beerId)
     {
-        throw new NotImplementedException();
+        string sql =
+            @"SELECT avg(score)
+              from review
+              where beerId = @BeerId";
+        
+        using var connection = DbHelper.GetConnection();
+        return connection.QuerySingle<decimal>(sql, new { BeerId = beerId });
     }
     
     // 1.11 Question
@@ -144,7 +201,12 @@ public class Assignments1 : TestHelper
     // De test werkt alleen als de vorige vraag ook correct is gemaakt.
     public static void InsertReview(int beerId, decimal score)
     {
-        throw new NotImplementedException();
+            string sql =
+                @"INSERT INTO review (BeerId, Score) 
+          VALUES (@BeerId, @Score);"; // Geen ID meer terughalen
+
+            using var connection = DbHelper.GetConnection();
+            connection.Execute(sql, new { BeerId = beerId, Score = score });
     }
     
     // 1.12 Question
@@ -152,8 +214,15 @@ public class Assignments1 : TestHelper
     // Deze test werkt alleen decimal GetBeerRating(int beerId) methode correct is (twee vragen hiervoor).
     public static int InsertReviewReturnsReviewId(int beerId, decimal score)
     {
-        throw new NotImplementedException();
+        string sql =
+            @"INSERT INTO review (BeerId, Score) 
+          VALUES (@BeerId, @Score);
+          SELECT LAST_INSERT_ID();"; // Haalt het laatst ingevoegde ID op
+
+        using var connection = DbHelper.GetConnection();
+        return connection.ExecuteScalar<int>(sql, new { BeerId = beerId, Score = score });
     }
+
     
     // twee methoden verwijderd
 }

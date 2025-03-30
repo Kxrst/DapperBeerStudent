@@ -5,7 +5,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 drop table if exists Brewer;
 drop table if exists Beer;
 drop table if exists Cafe;
-drop table if exists Sells;
+drop table if exists Sells; 
 drop table if exists Address;
 drop table if exists Brewmaster;
 drop table if exists Review;

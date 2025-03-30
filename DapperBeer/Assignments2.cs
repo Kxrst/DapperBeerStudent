@@ -27,9 +27,17 @@ public class Assignments2
     // (DELETE, DROP, SELECT van andere tabellen, etc.)!
     // Met andere woorden gebruik altijd query parameters en nooit string concatenatie om SQL-queries te maken.
     // !!!DOE DIT NOOIT MEER SVP!!!!
+
+ 
     public static List<string> GetBeersByCountryWithSqlInjection(string country)
     {
-        throw new NotImplementedException();
+        string sql = @$"SELECT beer.Name
+                        FROM brewer
+                        JOIN beer ON beer.BrewerId = brewer.brewerId
+                        WHERE Country = '{country}'";
+        
+        using var connection = DbHelper.GetConnection();
+        return connection.Query<string>(sql).ToList();
     }
     
     // 2.2 Question
@@ -42,7 +50,13 @@ public class Assignments2
     // Dit betekent dus dat country null kan zijn.
     public static List<string> GetAllBeersByCountry(string? country)
     {
-        throw new NotImplementedException();
+        string sql = @$"SELECT beer.Name
+                        FROM brewer
+                        JOIN beer ON beer.BrewerId = brewer.brewerId
+                        WHERE @Country IS NULL OR Country = @Country";
+        
+        using var connection = DbHelper.GetConnection();
+        return connection.Query<string>(sql).ToList();
     }
     
     // 2.3 Question
@@ -52,7 +66,13 @@ public class Assignments2
     // Gebruikt <= (kleiner of gelijk aan) voor de vergelijking van het minAlcohol.
     public static List<string> GetAllBeersByCountryAndMinAlcohol(string? country = null, decimal? minAlcohol = null)
     {
-        throw new NotImplementedException();
+        string sql = @$"SELECT beer.Name, beer.Alcohol
+                        FROM brewer
+                        JOIN beer ON beer.BrewerId = brewer.brewerId
+                        WHERE @Country IS NULL OR Country = @Country AND Alcohol <= @MinAlcohol";
+        
+        using var connection = DbHelper.GetConnection();
+        return connection.Query<string>(sql).ToList();
     }
     
     // 2.4 Question
