@@ -72,8 +72,14 @@ public class Assignments1 : TestHelper
     public static List<Beer> GetAllBeersSortedByNameForCountry(string country)
     {
         string sql = 
-            @"SELECT beer.BeerId, beer.Name, beer.BrewerId, brewer.Name AS BrewerName, brewer.Country 
-          FROM Beer
+            @"SELECT 
+                beer.BeerId, 
+                beer.Name, 
+                beer.Type, 
+                beer.Style,
+                beer.Alcohol,
+                beer.BrewerId
+          FROM Beer 
           JOIN Brewer ON Brewer.BrewerId = Beer.BrewerId
           WHERE brewer.Country = @Country
           ORDER BY beer.Name ASC";
@@ -113,7 +119,8 @@ public class Assignments1 : TestHelper
         string sql =
             @"SELECT Country, COUNT(1) AS NumberOfBreweries
               from brewer
-              GROUP BY country";
+              GROUP BY country
+              order by NumberOfBreweries DESC";
         
         using var connection = DbHelper.GetConnection();
         return connection.Query<NumberOfBrewersByCountry>(sql).ToList();
@@ -125,7 +132,13 @@ public class Assignments1 : TestHelper
     public static Beer GetBeerWithMostAlcohol()
     {
         string sql =
-            @"SELECT beerid, name, alcohol
+            @"SELECT 
+                beerid, 
+                name,
+                type,
+                style,
+                alcohol,
+                brewerId
               from beer
               Order By Alcohol DESC 
               limit 1";
@@ -143,7 +156,7 @@ public class Assignments1 : TestHelper
     public static Brewer? GetBreweryByBrewerId(int brewerId)
     {
         string sql =
-            @"SELECT brewerId, name
+            @"SELECT brewerId, name, Country
               FROM brewer
               WHERE brewerId = @BrewerId";
         
@@ -156,7 +169,13 @@ public class Assignments1 : TestHelper
     public static List<Beer> GetAllBeersByBreweryId(int brewerId)
     {
         string sql =
-            @"SELECT name, alcohol
+            @"SELECT 
+                BeerId,
+                name, 
+                Type,
+                style,
+                alcohol,
+                brewerId
               FROM beer
               WHERE brewerId = @BrewerId
               order by alcohol";
